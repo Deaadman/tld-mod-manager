@@ -1,9 +1,8 @@
 [package]
-name = "tld-mod-manager-core"
+name = "tld-mod-manager-cli"
 version = "0.1.0"
 edition = "2024"
 authors = ["Deadman"]
 
 [dependencies]
-winreg = "0.55"
-bitness = "0.4.0"
+tld-mod-manager-core = { path = "../../core" }
