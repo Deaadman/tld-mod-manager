@@ -1,6 +1,5 @@
-use std::env;
-
 use clap::Parser;
+use std::io;
 use tld_mod_manager_core::testing;
 
 #[derive(Parser, Debug)]
@@ -14,20 +13,14 @@ struct Args {
 }
 
 fn main() {
-    let current_os = env::consts::OS;
-    match current_os {
-        "windows" => println!("User is on Windows!"),
-        "macos" => println!("User is on macOS!"),
-        "linux" => println!("User is on Linux!"),
-        _ => println!("Unknown operating system"),
-    }
-
     let test = testing();
     if let Err(_) = test {
         eprintln!("Failed to find steam path");
     } else {
         println!("{:?}", test)
     }
+
+    io::stdin().read_line(&mut String::new()).unwrap();
 
     // println!("{}", test)
 
