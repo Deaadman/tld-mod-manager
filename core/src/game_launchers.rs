@@ -2,10 +2,10 @@ pub mod steam {
     #[cfg(target_os = "windows")]
     pub mod windows {
         use std::io;
-        use winreg::*;
+        use winreg::RegKey;
+        use winreg::enums::*;
 
         pub fn is_installed() -> io::Result<()> {
-
             let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
 
             #[cfg(target_arch = "x86")]
