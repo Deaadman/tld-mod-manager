@@ -4,6 +4,5 @@ version = "0.1.0"
 edition = "2024"
 authors = ["Deadman"]
 
-[dependencies]
+[target.'cfg(windows)'.dependencies]
 winreg = "0.55"
-bitness = "0.4.0"

@@ -1,6 +1,6 @@
 use clap::Parser;
 use std::io;
-use tld_mod_manager_core::testing;
+use tld_mod_manager_core::game_launchers::*;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -13,14 +13,29 @@ struct Args {
 }
 
 fn main() {
-    let test = testing();
-    if let Err(_) = test {
-        eprintln!("Failed to find steam path");
-    } else {
-        println!("{:?}", test)
+
+    #[cfg(target_os = "windows")]
+    if cfg!(target_os = "windows") {
+        let test = steam::windows::is_installed();
+
+        if let Err(e) = test {
+            eprintln!("Failed to find steam path. Error: {}", e);
+        } else {
+            println!("{:?}", test)
+        }
     }
 
-    io::stdin().read_line(&mut String::new()).unwrap();
+    #[cfg(target_os = "macos")]
+    if cfg!(target_os = "macos") {
+        steam::macos::is_installed();
+    }
+
+    #[cfg(target_os = "linux")]
+    if cfg!(target_os = "linux") {
+        steam::linux::is_installed();
+    }
+
+    // io::stdin().read_line(&mut String::new()).unwrap();
 
     // println!("{}", test)
 
