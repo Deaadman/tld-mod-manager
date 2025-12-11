@@ -30,16 +30,20 @@ pub mod steam {
     pub mod linux {
         use std::{env, path::Path};
 
-        pub fn is_installed() {
+        pub fn is_installed() -> Option<String> {
             let home_dir = env::home_dir();
             let steam_dir = Path::new(".steam/steam");
             let full_dir = home_dir.unwrap().join(steam_dir);
 
             if full_dir.exists() {
-                println!("{:?}", full_dir)
+                return Some(String::from(full_dir.to_str().unwrap()));
             } else {
-                println!("Steam isn't installed")
+                return None;
             }
         }
+    }
+
+    pub fn read_library(steam_dir: &str) {
+        println!("{}", steam_dir);
     }
 }

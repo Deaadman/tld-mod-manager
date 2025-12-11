@@ -32,7 +32,13 @@ fn main() {
 
     #[cfg(target_os = "linux")]
     if cfg!(target_os = "linux") {
-        steam::linux::is_installed();
+        let steam_dir = steam::linux::is_installed();
+        let test2 = match steam_dir {
+            Some(test2) => test2,
+            None => return eprintln!("No steam directory found")
+        };
+
+        steam::read_library(&test2);
     }
 
     // io::stdin().read_line(&mut String::new()).unwrap();
