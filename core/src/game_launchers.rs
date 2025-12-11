@@ -28,8 +28,18 @@ pub mod steam {
 
     #[cfg(target_os = "linux")]
     pub mod linux {
+        use std::{env, path::Path};
+
         pub fn is_installed() {
-            println!("Hello From Linux!");
+            let home_dir = env::home_dir();
+            let steam_dir = Path::new(".steam/steam");
+            let full_dir = home_dir.unwrap().join(steam_dir);
+
+            if full_dir.exists() {
+                println!("{:?}", full_dir)
+            } else {
+                println!("Steam isn't installed")
+            }
         }
     }
 }

@@ -1,5 +1,4 @@
 use clap::Parser;
-use std::io;
 use tld_mod_manager_core::game_launchers::*;
 
 #[derive(Parser, Debug)]
@@ -16,6 +15,7 @@ fn main() {
 
     #[cfg(target_os = "windows")]
     if cfg!(target_os = "windows") {
+        use std::io;
         let test = steam::windows::is_installed();
 
         if let Err(e) = test {
