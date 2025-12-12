@@ -1,10 +1,12 @@
 pub mod steam {
     use serde::Deserialize;
     use std::collections::HashMap;
+    use std::fs;
     use std::path::PathBuf;
     use keyvalues_parser::Vdf;
     use keyvalues_serde::from_vdf;
     use std::borrow::Cow;
+    use std::path::Path;
 
     #[cfg(target_os = "windows")]
     pub mod windows {
@@ -12,17 +14,17 @@ pub mod steam {
         use winreg::RegKey;
         use winreg::enums::*;
 
-        pub fn is_installed() -> io::Result<()> {
+        pub fn is_installed() -> io::Result<PathBuf> {
             let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
 
-            #[cfg(target_arch = "x86")]
-            let key = hklm.open_subkey("SOFTWARE\\Valve\\Steam")?;
             #[cfg(target_arch = "x86_64")]
             let key = hklm.open_subkey("SOFTWARE\\WOW6432NODE\\Valve\\Steam")?;
+            #[cfg(target_arch = "x86")]
+            let key = hklm.open_subkey("SOFTWARE\\Valve\\Steam")?;
 
-            let steam_path: String = key.get_value("InstallPath")?;
+            let steam_path: PathBuf = key.get_value("InstallPath")?;
 
-            Ok(())
+            Ok(steam_path)
         }
     }
 
@@ -35,18 +37,16 @@ pub mod steam {
 
     #[cfg(target_os = "linux")]
     pub mod linux {
-        use std::{env, path::Path};
+        use std::env;
+        use std::path::Path;
+        use std::path::PathBuf;
 
-        pub fn is_installed() -> Option<String> {
+        pub fn is_installed() -> PathBuf {
             let home_dir = env::home_dir();
             let steam_dir = Path::new(".steam/steam");
             let full_dir = home_dir.unwrap().join(steam_dir);
 
-            if full_dir.exists() {
-                return Some(String::from(full_dir.to_str().unwrap()));
-            } else {
-                return None;
-            }
+            return full_dir;
         }
     }
 
@@ -63,51 +63,13 @@ pub mod steam {
         apps: HashMap<u64, u64>,
     }
 
-    pub fn read_library(steam_dir: &str) -> keyvalues_serde::Result<()> {
+    pub fn read_library(steam_dir: PathBuf) -> keyvalues_serde::Result<()> {
 
+        let library_folders_dir = Path::new("config/libraryfolders.vdf");
+        let full_dir = steam_dir.join(library_folders_dir);
+        let vdf_text = fs::read_to_string(full_dir)?;
 
-
-        const VDF_TEXT: &str = r##"
-        "libraryfolders"
-        {
-            "0"
-            {
-                "path"		"C:\\Program Files (x86)\\Steam"
-                "label"		""
-                "contentid"		"1897266010619334199"
-                "totalsize"		"0"
-                "update_clean_bytes_tally"		"53289278"
-                "time_last_update_verified"		"1752746886"
-                "apps"
-                {
-                    "228980"		"277865478"
-                }
-            }
-            "1"
-            {
-                "path"		"D:\\SteamLibrary"
-                "label"		""
-                "contentid"		"2631954653617166088"
-                "totalsize"		"2000396742656"
-                "update_clean_bytes_tally"		"2148485699"
-                "time_last_update_verified"		"1764387472"
-                "apps"
-                {
-                    "108600"		"7305916760"
-                    "305620"		"4416174046"
-                    "359550"		"69877094912"
-                    "739630"		"36128289462"
-                    "1066890"		"132047191318"
-                    "1905180"		"477214184"
-                    "2124490"		"36320370348"
-                    "2592160"		"15406705489"
-                    "2668510"		"10113266277"
-                }
-            }
-        }
-        "##;
-
-        let mut vdf = Vdf::parse(VDF_TEXT)?;
+        let mut vdf = Vdf::parse(&vdf_text)?;
         let obj = vdf.value.get_mut_obj().unwrap();
 
         // Switch all the entries with keys that are an index (0, 1, ...) to `"libraries"`
@@ -121,7 +83,17 @@ pub mod steam {
         }
 
         let deserialized: LibraryFolders = from_vdf(vdf)?;
-        println!("Deserialized output:\n{:#?}", deserialized);
+
+        for i in deserialized.libraries {
+            let steamapps_dir = Path::new("steamapps");
+            let full_dir = i.path.join(steamapps_dir);
+
+            if !full_dir.exists() {
+                continue;
+            }
+
+            println!("{:#?}", full_dir);
+        }
 
         Ok(())
     }

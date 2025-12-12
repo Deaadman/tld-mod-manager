@@ -1,5 +1,6 @@
 use clap::Parser;
 use tld_mod_manager_core::game_launchers::*;
+use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -12,15 +13,11 @@ struct Args {
 }
 
 fn main() {
+    let steam_dir: PathBuf;
+
     #[cfg(target_os = "windows")]
     {
-        let test = steam::windows::is_installed();
-
-        if let Err(e) = test {
-            eprintln!("Failed to find steam path. Error: {}", e);
-        } else {
-            println!("{:?}", test)
-        }
+        steam_dir = steam::windows::is_installed();
     }
 
     #[cfg(target_os = "macos")]
@@ -30,14 +27,10 @@ fn main() {
 
     #[cfg(target_os = "linux")]
     {
-        steam::read_library("");
-
-        let steam_dir = steam::linux::is_installed();
-        let test2 = match steam_dir {
-            Some(test2) => test2,
-            None => return eprintln!("No steam directory found"),
-        };
+        steam_dir = steam::linux::is_installed();
     }
+
+    let _ = steam::read_library(steam_dir);
 
     // io::stdin().read_line(&mut String::new()).unwrap();
 
