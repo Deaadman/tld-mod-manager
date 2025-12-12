@@ -13,7 +13,7 @@ struct Args {
 
 fn main() {
     #[cfg(target_os = "windows")]
-    if cfg!(target_os = "windows") {
+    {
         let test = steam::windows::is_installed();
 
         if let Err(e) = test {
@@ -24,19 +24,19 @@ fn main() {
     }
 
     #[cfg(target_os = "macos")]
-    if cfg!(target_os = "macos") {
+    {
         steam::macos::is_installed();
     }
 
     #[cfg(target_os = "linux")]
-    if cfg!(target_os = "linux") {
+    {
+        steam::read_library("");
+
         let steam_dir = steam::linux::is_installed();
         let test2 = match steam_dir {
             Some(test2) => test2,
             None => return eprintln!("No steam directory found"),
         };
-
-        steam::read_library(&test2);
     }
 
     // io::stdin().read_line(&mut String::new()).unwrap();
