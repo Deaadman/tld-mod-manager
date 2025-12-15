@@ -1,6 +1,6 @@
 use clap::Parser;
-use tld_mod_manager_core::game_launchers::*;
 use std::path::PathBuf;
+use tld_mod_manager_core::game_launchers::*;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -17,7 +17,7 @@ fn main() {
 
     #[cfg(target_os = "windows")]
     {
-        steam_dir = steam::windows::is_installed();
+        steam_dir = steam::windows::is_installed().unwrap();
     }
 
     #[cfg(target_os = "macos")]

@@ -1,16 +1,17 @@
 pub mod steam {
-    use serde::Deserialize;
-    use std::collections::HashMap;
-    use std::fs;
-    use std::path::PathBuf;
     use keyvalues_parser::Vdf;
     use keyvalues_serde::from_vdf;
+    use serde::Deserialize;
     use std::borrow::Cow;
+    use std::collections::HashMap;
+    use std::fs;
     use std::path::Path;
+    use std::path::PathBuf;
 
     #[cfg(target_os = "windows")]
     pub mod windows {
         use std::io;
+        use std::path::PathBuf;
         use winreg::RegKey;
         use winreg::enums::*;
 
@@ -22,9 +23,9 @@ pub mod steam {
             #[cfg(target_arch = "x86")]
             let key = hklm.open_subkey("SOFTWARE\\Valve\\Steam")?;
 
-            let steam_path: PathBuf = key.get_value("InstallPath")?;
+            let steam_path: String = key.get_value("InstallPath")?;
 
-            Ok(steam_path)
+            Ok(PathBuf::from(steam_path))
         }
     }
 
@@ -52,7 +53,7 @@ pub mod steam {
 
     #[derive(Deserialize, Debug)]
     #[allow(dead_code)]
-    struct LibraryFolders  {
+    struct LibraryFolders {
         libraries: Vec<Library>,
     }
 
@@ -64,7 +65,6 @@ pub mod steam {
     }
 
     pub fn read_library(steam_dir: PathBuf) -> keyvalues_serde::Result<()> {
-
         let library_folders_dir = Path::new("config/libraryfolders.vdf");
         let full_dir = steam_dir.join(library_folders_dir);
         let vdf_text = fs::read_to_string(full_dir)?;
