@@ -30,7 +30,8 @@ fn main() {
         steam_dir = steam::linux::is_installed();
     }
 
-    let _ = steam::read_library(steam_dir);
+    let libraries = steam::read_libraries(steam_dir);
+    let _ = steam::read_games(libraries.unwrap());
 
     // io::stdin().read_line(&mut String::new()).unwrap();
 

@@ -59,12 +59,20 @@ pub mod steam {
 
     #[derive(Deserialize, Debug)]
     #[allow(dead_code)]
-    struct Library {
+    pub struct Library {
         path: PathBuf,
         apps: HashMap<u64, u64>,
     }
 
-    pub fn read_library(steam_dir: PathBuf) -> keyvalues_serde::Result<()> {
+    #[derive(Deserialize, Debug)]
+    #[allow(dead_code)]
+    struct AppState {
+        appid: u64,
+        name: String,
+        installdir: String
+    }
+
+    pub fn read_libraries(steam_dir: PathBuf) -> keyvalues_serde::Result<Vec<Library>> {
         let library_folders_dir = Path::new("config/libraryfolders.vdf");
         let full_dir = steam_dir.join(library_folders_dir);
         let vdf_text = fs::read_to_string(full_dir)?;
@@ -83,8 +91,12 @@ pub mod steam {
         }
 
         let deserialized: LibraryFolders = from_vdf(vdf)?;
+        return Ok(deserialized.libraries);
+    }
 
-        for i in deserialized.libraries {
+    pub fn read_games(libraries: Vec<Library>) -> keyvalues_serde::Result<()> {
+        for i in libraries {
+
             let steamapps_dir = Path::new("steamapps");
             let full_dir = i.path.join(steamapps_dir);
 
@@ -92,7 +104,15 @@ pub mod steam {
                 continue;
             }
 
-            println!("{:#?}", full_dir);
+            for j in i.apps {
+                let app_id = j.0;
+                let acf_file = format!("appmanifest_{app_id}.acf");
+                let acf_dir = full_dir.join(&acf_file);
+                let acf_text = fs::read_to_string(acf_dir)?;
+                let acf = Vdf::parse(&acf_text)?;
+                let deserialized: AppState = from_vdf(acf)?;
+                println!("{:#?}", deserialized);
+            }
         }
 
         Ok(())
