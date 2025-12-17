@@ -105,13 +105,24 @@ pub mod steam {
             }
 
             for j in i.apps {
+
                 let app_id = j.0;
+
+                // Skip the current loop if the app_id isn't equal to The Long Dark's
+                if app_id != 305620 {
+                    continue;
+                }
+
                 let acf_file = format!("appmanifest_{app_id}.acf");
                 let acf_dir = full_dir.join(&acf_file);
                 let acf_text = fs::read_to_string(acf_dir)?;
                 let acf = Vdf::parse(&acf_text)?;
                 let deserialized: AppState = from_vdf(acf)?;
                 println!("{:#?}", deserialized);
+
+                let install_dir = deserialized.installdir;
+                let app_dir = full_dir.join(format!("steamapps/{install_dir}"));
+                println!("Final Game Directory: {}", app_dir.display());
             }
         }
 
