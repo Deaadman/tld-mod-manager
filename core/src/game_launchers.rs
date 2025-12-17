@@ -69,7 +69,7 @@ pub mod steam {
     struct AppState {
         appid: u64,
         name: String,
-        installdir: String
+        installdir: String,
     }
 
     pub fn read_libraries(steam_dir: PathBuf) -> keyvalues_serde::Result<Vec<Library>> {
@@ -94,9 +94,10 @@ pub mod steam {
         return Ok(deserialized.libraries);
     }
 
-    pub fn read_games(libraries: Vec<Library>) -> keyvalues_serde::Result<()> {
-        for i in libraries {
+    pub fn read_games(libraries: Vec<Library>) -> keyvalues_serde::Result<PathBuf> {
+        let mut app_dir: PathBuf = PathBuf::new();
 
+        for i in libraries {
             let steamapps_dir = Path::new("steamapps");
             let full_dir = i.path.join(steamapps_dir);
 
@@ -105,7 +106,6 @@ pub mod steam {
             }
 
             for j in i.apps {
-
                 let app_id = j.0;
 
                 // Skip the current loop if the app_id isn't equal to The Long Dark's
@@ -118,14 +118,13 @@ pub mod steam {
                 let acf_text = fs::read_to_string(acf_dir)?;
                 let acf = Vdf::parse(&acf_text)?;
                 let deserialized: AppState = from_vdf(acf)?;
-                println!("{:#?}", deserialized);
 
                 let install_dir = deserialized.installdir;
-                let app_dir = full_dir.join(format!("steamapps/{install_dir}"));
-                println!("Final Game Directory: {}", app_dir.display());
+                let steam_apps_dir = full_dir.join("common");
+                app_dir = steam_apps_dir.join(install_dir);
             }
         }
 
-        Ok(())
+        Ok(app_dir)
     }
 }

@@ -1,4 +1,5 @@
 pub mod game_launchers;
+pub mod melonloader;
 
 // pub fn add(left: u64, right: u64) -> u64 {
 //     left + right

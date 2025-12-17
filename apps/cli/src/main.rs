@@ -1,6 +1,6 @@
 use clap::Parser;
 use std::path::PathBuf;
-use tld_mod_manager_core::game_launchers::*;
+use tld_mod_manager_core::{game_launchers::*, melonloader::*};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -31,7 +31,14 @@ fn main() {
     }
 
     let libraries = steam::read_libraries(steam_dir);
-    let _ = steam::read_games(libraries.unwrap());
+    let games = steam::read_games(libraries.unwrap());
+    let melonloader_installed = melonloader::installed(games.unwrap());
+
+    if melonloader_installed {
+        println!("MelonLoader is installed!");
+    } else {
+        println!("MelonLoader is NOT installed!");
+    }
 
     // io::stdin().read_line(&mut String::new()).unwrap();
 
