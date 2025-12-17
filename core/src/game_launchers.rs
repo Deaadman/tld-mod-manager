@@ -64,12 +64,18 @@ pub mod steam {
         apps: HashMap<u64, u64>,
     }
 
-    #[derive(Deserialize, Debug)]
+    #[derive(Deserialize, Debug, Hash, Eq)]
     #[allow(dead_code)]
-    struct AppState {
+    pub struct AppState {
         appid: u64,
         name: String,
         installdir: String,
+    }
+
+    impl PartialEq for AppState {
+        fn eq(&self, other: &Self) -> bool {
+            self.appid == other.appid
+        }
     }
 
     pub fn read_libraries(steam_dir: PathBuf) -> keyvalues_serde::Result<Vec<Library>> {
@@ -94,8 +100,10 @@ pub mod steam {
         return Ok(deserialized.libraries);
     }
 
-    pub fn read_games(libraries: Vec<Library>) -> keyvalues_serde::Result<PathBuf> {
-        let mut app_dir: PathBuf = PathBuf::new();
+    pub fn read_games(
+        libraries: Vec<Library>,
+    ) -> keyvalues_serde::Result<HashMap<AppState, PathBuf>> {
+        let mut apps = HashMap::new();
 
         for i in libraries {
             let steamapps_dir = Path::new("steamapps");
@@ -107,24 +115,36 @@ pub mod steam {
 
             for j in i.apps {
                 let app_id = j.0;
-
-                // Skip the current loop if the app_id isn't equal to The Long Dark's
-                if app_id != 305620 {
-                    continue;
-                }
-
                 let acf_file = format!("appmanifest_{app_id}.acf");
                 let acf_dir = full_dir.join(&acf_file);
                 let acf_text = fs::read_to_string(acf_dir)?;
                 let acf = Vdf::parse(&acf_text)?;
                 let deserialized: AppState = from_vdf(acf)?;
 
-                let install_dir = deserialized.installdir;
-                let steam_apps_dir = full_dir.join("common");
-                app_dir = steam_apps_dir.join(install_dir);
+                let dir = full_dir.clone();
+                apps.insert(deserialized, dir);
             }
         }
 
-        Ok(app_dir)
+        Ok(apps)
+    }
+
+    pub fn game_installed(app_id: u64, games: HashMap<AppState, PathBuf>) -> PathBuf {
+        let mut app_dir: PathBuf = PathBuf::new();
+
+        for i in games {
+            let app_state = i.0;
+            let appid = app_state.appid;
+
+            if appid != app_id {
+                continue;
+            }
+
+            let install_dir = app_state.installdir;
+            let steam_apps_dir = i.1.join("common");
+            app_dir = steam_apps_dir.join(install_dir);
+        }
+
+        return app_dir;
     }
 }

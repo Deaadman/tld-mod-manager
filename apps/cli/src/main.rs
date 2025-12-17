@@ -32,7 +32,10 @@ fn main() {
 
     let libraries = steam::read_libraries(steam_dir);
     let games = steam::read_games(libraries.unwrap());
-    let melonloader_installed = melonloader::installed(games.unwrap());
+    let tld_dir = steam::game_installed(305620, games.unwrap());
+    println!("{:?}", tld_dir);
+
+    let melonloader_installed = melonloader::installed(tld_dir);
 
     if melonloader_installed {
         println!("MelonLoader is installed!");
