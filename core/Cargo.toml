@@ -11,3 +11,4 @@ serde = { version = "1.0.228", features = ["derive"] }
 
 [target.'cfg(windows)'.dependencies]
 winreg = "0.55"
+win32-version-info = "0.3.0"
