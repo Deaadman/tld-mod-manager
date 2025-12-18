@@ -1,6 +1,6 @@
 use clap::Parser;
 use std::path::PathBuf;
-use tld_mod_manager_core::{game_launchers::*, melonloader::*};
+use tld_mod_manager_core::{game_launchers::*, melonloader::*, test};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -12,7 +12,8 @@ struct Args {
     count: u8,
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let steam_dir: PathBuf;
 
     #[cfg(target_os = "windows")]
@@ -30,18 +31,20 @@ fn main() {
         steam_dir = steam::linux::is_installed();
     }
 
-    let libraries = steam::read_libraries(steam_dir);
-    let games = steam::read_games(libraries.unwrap());
-    let tld_dir = steam::game_installed(305620, games.unwrap());
-    println!("{:?}", tld_dir);
+    let _ = test().await;
 
-    let melonloader_installed = melonloader::installed(tld_dir);
+    // let libraries = steam::read_libraries(steam_dir);
+    // let games = steam::read_games(libraries.unwrap());
+    // let tld_dir = steam::game_installed(305620, games.unwrap());
+    // println!("{:?}", tld_dir);
 
-    if melonloader_installed {
-        println!("MelonLoader is installed!");
-    } else {
-        println!("MelonLoader is NOT installed!");
-    }
+    // let melonloader_installed = melonloader::installed(tld_dir);
+
+    // if melonloader_installed {
+    //     println!("MelonLoader is installed!");
+    // } else {
+    //     println!("MelonLoader is NOT installed!");
+    // }
 
     // io::stdin().read_line(&mut String::new()).unwrap();
 
