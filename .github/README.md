@@ -1,1 +1,0 @@
-[Mirrored from Codeberg](https://codeberg.org/Deadman/tld-mod-manager)
