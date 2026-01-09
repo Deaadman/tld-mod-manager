@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "tld-mod-manager.tests (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "tld-mod-manager.tests (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

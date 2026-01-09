@@ -8,6 +8,12 @@
     <Deploy />
   </Project>
   <Project Path="tld-mod-manager.core/tld-mod-manager.core.csproj" Id="3c88e343-42b1-466c-b39c-5af4f4f689ef" />
+  <Project Path="tld-mod-manager.tests/tld-mod-manager.tests.csproj" Id="282d7b0c-38db-40a3-b0cd-08ad0c64690b">
+    <Platform Solution="*|ARM64" Project="ARM64" />
+    <Platform Solution="*|x64" Project="x64" />
+    <Platform Solution="*|x86" Project="x86" />
+    <Deploy />
+  </Project>
   <Project Path="tld-mod-manager/tld-mod-manager.csproj">
     <Platform Solution="*|ARM64" Project="ARM64" />
     <Platform Solution="*|x64" Project="x64" />
